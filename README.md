@@ -4,31 +4,18 @@ A benchmarking project to compare the performance and usability of various data 
 
 ## A. Getting started
 
+After creating a venv for the project run:
 
-
+```
+pip install -r requirements.txt
+```
 
 
 ### B. Generate input data tables
 
-Navigate to the data generator directory `dbgen` and build the data generator:
-
+Run the bash script that first generates the tpch data tables in csv format approx 1Gb in size (scale factor 1), then it converts it to parquet files
 ```
-cd dbgen
-make
+./populate_data.sh 1
 ```
 
-For different size tables you can use the `-s` (scale) option. For example for 1GB,
-
-```
-./dbgen -s 1
-```
-
-Note that by default, `dbgen` uses a `|` as a column separator, and includes a `|` at the end of each entry.
-
-Then run the python code that uses pandas and pyarrow to convert the csv files to parquet (with the scale factor 1, adjust it according the needed scale factor): 
-```
-cd..
-python convert_to_parquet.py 1 
-```
-
-This will creat a folder named tables_scale_X at the root folder of the project.
+This will creat a folder named tables_scale_1 at the root folder of the project. 
