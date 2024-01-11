@@ -27,7 +27,7 @@ schema_dict = {
         "l_quantity": "float64",
         "l_extendedprice": "float64",
         "l_discount": "float64",
-        "l_tax": "float64",
+        "l_tax": "string",
         "l_returnflag": "string",
         "l_linestatus": "string",
         "l_shipdate": "string",
@@ -89,15 +89,15 @@ schema_dict = {
 }
 
 
+
 # Retrieve scale factor from command line argument
-# scale_fac = int(sys.argv[1])
-scale_fac = 1
+scale_fac = int(sys.argv[1])
 
 
 
 
 input_folder = "dbgen/"
-output_folder = f"dbgen/tables_scale_{scale_fac}/"
+output_folder = f"tables_scale_{scale_fac}/"
 
 
 
