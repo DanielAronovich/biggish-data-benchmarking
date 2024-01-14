@@ -93,13 +93,8 @@ schema_dict = {
 # Retrieve scale factor from command line argument
 scale_fac = int(sys.argv[1])
 
-
-
-
 input_folder = "dbgen/"
 output_folder = f"tables_scale_{scale_fac}/"
-
-
 
 # Ensure the output directory exists
 os.makedirs(output_folder, exist_ok=True)
@@ -107,10 +102,24 @@ os.makedirs(output_folder, exist_ok=True)
 for table_name, table_schema in schema_dict.items():
     print(f"Processing table: {table_name}")
 
-    # Read the CSV file
-    df = pd.read_csv(f"{input_folder}{table_name}.tbl", sep="|", names=list(table_schema.keys()), header=None)
+    # Specify column names and their data types
+    column_names = list(table_schema.keys())
+    data_types = {col: dtype for col, dtype in table_schema.items()}
+
+    # Read the CSV file with the specified column names and data types
+    # The `on_bad_lines='skip'` parameter is used to skip any bad lines in the file
+    # Use `dtype=str` to initially read all columns as strings to avoid initial parsing errors
+    df = pd.read_csv(f"{input_folder}{table_name}.tbl", sep="|", names=column_names + ["dummy"], header=None, dtype=str, on_bad_lines='skip')
+
+    # Drop the extra dummy column caused by the trailing delimiter
+    df = df.drop(columns=["dummy"])
+
+    # Convert columns to their correct data types
+    for col, dtype in data_types.items():
+        df[col] = df[col].astype(dtype)
 
     # Write the DataFrame to Parquet format
     df.to_parquet(f"{output_folder}{table_name}.parquet", index=False)
+
 
 print("All files have been processed.")

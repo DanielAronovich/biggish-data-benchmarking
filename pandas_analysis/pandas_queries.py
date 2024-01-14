@@ -31,6 +31,12 @@ def query1():
 
 
 def query2():
+
+
+    var1 = 15
+    var2 = "BRASS"
+    var3 = "EUROPE"
+
     current_dir = os.path.dirname(__file__)
 
     # Define the paths to the Parquet files
@@ -47,50 +53,26 @@ def query2():
     nation_df = pd.read_parquet(nation_file)
     region_df = pd.read_parquet(region_file)
 
-    # Convert 'p_partkey' to string in all relevant DataFrames
-    part_df['p_partkey'] = part_df['p_partkey'].astype(str)
-    partsupp_df['ps_partkey'] = partsupp_df['ps_partkey'].astype(str)
+    # Perform the first merge
+    europe = region_df[region_df['r_name'] == var3]
+    europe = europe.merge(nation_df, left_on='r_regionkey', right_on='n_regionkey', how='inner')
+    europe = europe.merge(supplier_df, left_on='n_nationkey', right_on='s_nationkey')
+    europe = europe.merge(partsupp_df, left_on='s_suppkey', right_on='ps_suppkey')
 
 
-    # Convert 's_suppkey' in both supplier_df and partsupp_df to string
-    supplier_df['s_suppkey'] = supplier_df['s_suppkey'].astype(str)
-    partsupp_df['ps_suppkey'] = partsupp_df['ps_suppkey'].astype(str)
-    part_df['p_type'] = part_df['p_type'].astype(str)
+    # Filtering part DataFrame and joining
+    brass = part_df[(part_df['p_size'] == var1) & (part_df['p_type'].str.endswith(var2))]
+    brass = brass.merge(europe, left_on='p_partkey', right_on='ps_partkey')
 
-    # First merge: part_df with partsupp_df
-    part_partsupp_merge = part_df.merge(partsupp_df, left_on='p_partkey', right_on='ps_partkey', how='inner')
-    print("First merge successful, shape:", part_partsupp_merge.shape)
+    # Grouping by and calculating minimum supply cost
+    min_cost = brass.groupby('ps_partkey')['ps_supplycost'].min().reset_index()
+    min_cost.rename(columns={'ps_supplycost': 'min'}, inplace=True)
 
-    # Second merge: Merge result with supplier_df
-    part_partsupp_supplier_merge = part_partsupp_merge.merge(supplier_df, left_on='ps_suppkey', right_on='s_suppkey', how='inner')
-    print("Second merge successful, shape:", part_partsupp_supplier_merge.shape)
-
-    # Third merge: Merge result with nation_df
-    part_partsupp_supplier_nation_merge = part_partsupp_supplier_merge.merge(nation_df, on='n_nationkey', how='inner')
-    print("Third merge successful, shape:", part_partsupp_supplier_nation_merge.shape)
-
-    # Fourth merge: Merge result with region_df
-    joined_df = part_partsupp_supplier_nation_merge.merge(region_df, on='r_regionkey', how='inner')
-    print("Fourth merge successful, shape:", joined_df.shape)
-
-
-    # Applying the filter and query logic as per your SQL query
-    # Filters
-    filtered_df = joined_df[(joined_df['p_size'] == 15) &
-                            (joined_df['p_type'].str.contains('BRASS')) &
-                            (joined_df['r_name'] == 'EUROPE')]
-
-    # Subquery for minimum ps_supplycost
-    min_supplycost = (partsupp_df.merge(supplier_df, on='s_suppkey')
-                                  .merge(nation_df, on='n_nationkey')
-                                  .merge(region_df, on='r_regionkey')
-                                  .query("r_name == 'EUROPE'")
-                                  .groupby('ps_partkey')['ps_supplycost'].min())
-
-    # Final query result
-    result = filtered_df[filtered_df['ps_supplycost'].isin(min_supplycost)]
-
-    # Sorting and limiting the results
-    result = result.sort_values(by=['s_acctbal', 'n_name', 's_name', 'p_partkey'], ascending=[False, True, True, True]).head(100)
+    # Final join, filter, select, sort, and limit
+    result = brass.merge(min_cost, left_on='ps_partkey', right_on='ps_partkey')
+    result = result[result['ps_supplycost'] == result['min']]
+    result = result[['s_acctbal', 's_name', 'n_name', 'p_partkey', 'p_mfgr', 's_address', 's_phone', 's_comment']]
+    result = result.sort_values(by=['s_acctbal', 'n_name', 's_name', 'p_partkey'], ascending=[False, True, True, True])
+    result = result.head(100)
 
     return result
