@@ -1,5 +1,15 @@
 # biggish-data-benchmarking
-A benchmarking project to compare the performance and usability of various data processing tools like Pandas, DuckDB, SQLite, Dask, Modin, and Vaex on a single laptop
+A benchmarking project to compare the performance and usability of various data processing tools on a single machine:
+
+1.Pandas 
+2.DuckDB  
+3.SQLite 
+4.Dask
+5.Modin
+6.Vaex
+7.Ray
+8.Spark
+9.cuDF
 
 
 ## A. Getting started
