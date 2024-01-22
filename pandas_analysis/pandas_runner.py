@@ -39,3 +39,4 @@ if __name__ == "__main__":
 
     run_query(query1, 1, output_dir, timing_file)
     run_query(query2, 2, output_dir, timing_file)
+    run_query(query3, 3, output_dir, timing_file)

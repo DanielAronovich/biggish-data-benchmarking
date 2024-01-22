@@ -10,7 +10,7 @@ A benchmarking project to compare the performance and usability of various data 
 7. Ray
 8. Spark
 9. cuDF
-
+10. Polars
 
 ## A. Getting started
 
