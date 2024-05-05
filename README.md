@@ -12,6 +12,15 @@ A benchmarking project to compare the performance and usability of various data 
 9. cuDF
 10. Polars
 
+# Benchmarking standard
+
+As benchmarking is fillied with many pitfalls, we will try to mitigate them by following  the recommendations from this paper:
+
+[Raasveldt, Mark, et al. "Fair benchmarking considered difficult: Common pitfalls in database performance testing." Proceedings of the Workshop on Testing Database Systems. 2018.
+](https://t1mm3.github.io/assets/papers/dbtest18.pdf)
+
+
+
 ## A. Getting started
 
 After creating a venv for the project run:
